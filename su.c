@@ -275,14 +275,16 @@ static void deny(void)
     exit(EXIT_FAILURE);
 }
 
-static void allow(char *shell)
+static void allow(char *shell,int ignore)
 {
     struct su_initiator *from = &su_from;
     struct su_request *to = &su_to;
     char *exe = NULL;
 
+    // modifed by lewa,ioz9
+	if (ignore == 0){
     send_intent(&su_from, &su_to, "", 1, 1);
-
+    }
     if (!strcmp(shell, "")) {
         strcpy(shell , "/system/bin/sh");
     }
@@ -355,9 +357,34 @@ int main(int argc, char *argv[])
         deny();
     }
 
-    if (su_from.uid == AID_ROOT || su_from.uid == AID_SHELL)
-        allow(shell);
+    // modifed by lewa,ioz9
+    if (su_from.uid == AID_ROOT || su_from.uid == AID_SHELL || su_from.uid == AID_SYSTEM)
+        allow(shell,1);
 
+	if (!strcmp(su_from.bin, "com.lewa.updater")) {
+        allow(shell,1);
+    }
+	
+	// by chenhengheng,2011-12-05, add com.lewatek.swapper
+	if (!strcmp(su_from.bin, "com.lewatek.swapper")) {
+        allow(shell,1);
+    }
+
+	// by zhuyaopeng,2012-02-01, add com.lewa.store
+	if (!strcmp(su_from.bin, "com.lewa.store")) {
+        allow(shell,1);
+    }
+	
+	// by fulianwu,2012-03-28, add com.lewa.face
+	if (!strcmp(su_from.bin, "com.lewa.face")) {
+        allow(shell,1);
+    }
+	
+	// by wangna,2012-04-20, add com.lewa.spm
+	if (!strcmp(su_from.bin, "com.lewa.spm")) {
+        allow(shell,1);
+    }
+	
     if (stat(REQUESTOR_DATA_PATH, &st) < 0) {
         PLOGE("stat");
         deny();
@@ -394,7 +421,7 @@ int main(int argc, char *argv[])
 
     switch (dballow) {
         case DB_DENY: deny();
-        case DB_ALLOW: allow(shell);
+        case DB_ALLOW: allow(shell,0);
         case DB_INTERACTIVE: break;
         default: deny();
     }
@@ -426,7 +453,7 @@ int main(int argc, char *argv[])
     if (!strcmp(result, "DENY")) {
         deny();
     } else if (!strcmp(result, "ALLOW")) {
-        allow(shell);
+        allow(shell,0);
     } else {
         LOGE("unknown response from Superuser Requestor: %s", result);
         deny();
