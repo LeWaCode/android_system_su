@@ -16,3 +16,22 @@ LOCAL_SHARED_LIBRARIES := \
 LOCAL_MODULE_PATH := $(TARGET_OUT_OPTIONAL_EXECUTABLES)
 
 include $(BUILD_EXECUTABLE)
+
+# lewa su
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := su0
+LOCAL_SRC_FILES := lewa_su.c 
+
+LOCAL_C_INCLUDES += external/sqlite/dist
+
+LOCAL_SHARED_LIBRARIES := \
+    liblog \
+    libsqlite \
+    libcutils \
+    libbinder \
+    libutils \
+
+LOCAL_MODULE_PATH := $(TARGET_OUT_EXECUTABLES)
+
+include $(BUILD_EXECUTABLE)
